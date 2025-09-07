@@ -4,10 +4,14 @@ import com.example.workflowengine.WorkflowStep;
 import com.example.workflowengine.WorkflowDefinition;
 import com.example.workflowengine.WorkflowInstance;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class CustomerInfoWorkflow implements WorkflowDefinition {
-
+    
+    private static final Logger log = LoggerFactory.getLogger(CustomerInfoWorkflow.class);
+    
     private static Boolean customerExists = null;
 
     public enum CustomerInfoStep implements WorkflowStep {
@@ -33,7 +37,7 @@ public class CustomerInfoWorkflow implements WorkflowDefinition {
     }
 
     private void handleWaitForCustomerToBeCreatedStep(WorkflowInstance task) {
-        System.out.println("Waiting for customer to be created");
+        log.info("Waiting for customer to be created");
         var customer = getCustomerInfo();
         if (customer == null) {
             int timesLooped = (int) task.getVariables().get("timesLoopedAfterRequestingToCreateCustomer");
@@ -54,10 +58,10 @@ public class CustomerInfoWorkflow implements WorkflowDefinition {
     }
 
     private void handleGetCustomerInfoStep(WorkflowInstance task) {
-        System.out.println("Getting customer info");
+        log.info("Getting customer info");
         var customer = getCustomerInfo();
         if (customer == null) {
-            System.out.println("customer does not exist");
+            log.info("customer does not exist - need to create customer then");
             task.setStepId(CustomerInfoStep.REQUEST_TO_CREATE_CUSTOMER);
         } else {
             saveCustomerInfo(customer);
@@ -66,29 +70,29 @@ public class CustomerInfoWorkflow implements WorkflowDefinition {
     }
 
     private static void createIncident() {
-        System.out.println("Customer is taking too long to be created. Creating incident");
+        log.info("Customer is taking too long to be created. Creating incident");
     }
 
     private static void createCustomer() {
-        System.out.println("requesting WnO to create customer");
+        log.info("requesting WnO to create customer");
     }
 
     private Object getCustomerInfo() {
-        System.out.println("Calling customer recognition client to get customer info");
+        log.info("Calling customer recognition client to get customer info");
         if (customerExists == null) {
             customerExists = System.currentTimeMillis() % 2 == 0;
         }
         if (customerExists) {
-            System.out.println("customer exists");
+            log.info("customer exists");
             return new Object();
         }
-        System.out.println("customer does not exist");
+        log.info("customer does not exist");
         customerExists = null;
         return null;
     }
 
     private static void saveCustomerInfo(Object customerInfo) {
-        System.out.println("customer exits, saving needed information about customer to db");
+        log.info("customer exits, saving needed information about customer to db");
     }
 
     @Override

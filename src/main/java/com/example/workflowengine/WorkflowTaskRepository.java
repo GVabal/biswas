@@ -28,10 +28,10 @@ public class WorkflowTaskRepository {
         return workflowTasks.values()
                 .stream()
                 // add filter that task is not already taken by az2 or az3 (not being handled right now)
-                .filter(task -> task.getStageId() != null) // not finished
-                .filter(task -> !task.hasIncident()) // not failed
-                .filter(task -> !task.isWaitingForHumanTaskToBeCompleted()) // not waiting for human task to be completed
-                .filter(task -> task.getTimedOutUntil() == null || task.getTimedOutUntil().isAfter(Instant.now())) // not delayed
+                .filter(task -> !task.isWaitingForCallback())
+                .filter(task -> !task.isWaitingForHumanTaskToBeCompleted())
+                .filter(task -> !task.hasIncident())
+                .filter(task -> task.getTimedOutUntil() == null || Instant.now().isAfter(task.getTimedOutUntil()))
                 .findAny();
     }
 }

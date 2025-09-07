@@ -4,9 +4,13 @@ import com.example.workflowengine.WorkflowStep;
 import com.example.workflowengine.WorkflowDefinition;
 import com.example.workflowengine.WorkflowInstance;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class CreditDecisionWorkflow implements WorkflowDefinition {
+
+    private static final Logger log = LoggerFactory.getLogger(CreditDecisionWorkflow.class);
 
     public enum CreditDecisionStep implements WorkflowStep {
         CREATE_CREDIT_FRAME, // only split steps into smaller ones if we expect to fail somewhere specific and want to be able to continue from that point instead of doing whole step from the beginning
@@ -35,18 +39,18 @@ public class CreditDecisionWorkflow implements WorkflowDefinition {
     private static void handleHumanTaskResult(Object creditDecisionResult) {
         boolean creditApproved = System.currentTimeMillis() % 2 == 0; // check result
         if (creditApproved) {
-            System.out.println("Credit approved");
+            log.info("Credit approved");
         } else {
-            System.out.println("Credit rejected");
+            log.info("Credit rejected");
         }
     }
 
     private static void createCreditDecisionHumanTask() {
-        System.out.println("Creating credit decision human task");
+        log.info("Creating credit decision human task");
     }
 
     private static void createCreditFrame() {
-        System.out.println("Creating credit frame");
+        log.info("Creating credit frame");
     }
 
     @Override

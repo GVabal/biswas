@@ -10,6 +10,7 @@ public class WorkflowInstance {
     private Instant timedOutUntil;
     private boolean waitingForHumanTaskToBeCompleted;
     private boolean hasIncident;
+    private boolean waitingForCallback;
     private WorkflowSetup.Stage stageId;
     private WorkflowStep workflowStep;
     private final Map<String, Object> variables = new HashMap<>();
@@ -36,6 +37,14 @@ public class WorkflowInstance {
 
     public void setWaitingForHumanTaskToBeCompleted(boolean waitingForHumanTaskToBeCompleted) {
         this.waitingForHumanTaskToBeCompleted = waitingForHumanTaskToBeCompleted;
+    }
+
+    public boolean isWaitingForCallback() {
+        return waitingForCallback;
+    }
+
+    public void setWaitingForCallback(boolean waitingForCallback) {
+        this.waitingForCallback = waitingForCallback;
     }
 
     public boolean hasIncident() {

@@ -53,4 +53,8 @@ public class WorkflowTaskScheduler {
          workflowTaskRepository.findById("1000000").get().setWaitingForHumanTaskToBeCompleted(false);
          workflowTaskRepository.findById("1000000").get().setStepId(CreditDecisionWorkflow.CreditDecisionStep.MAKE_CREDIT_DECISION);
     }
+
+    private void receiveAgreementDocumentCallback() {
+        workflowTaskRepository.findById("1000000").get().setWaitingForCallback(false);
+    }
 }

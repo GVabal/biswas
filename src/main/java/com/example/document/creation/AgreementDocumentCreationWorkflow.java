@@ -2,58 +2,80 @@ package com.example.document.creation;
 
 import com.example.workflowengine.WorkflowDefinition;
 import com.example.workflowengine.WorkflowInstance;
+import com.example.workflowengine.WorkflowStep;
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AgreementDocumentCreationWorkflow implements WorkflowDefinition {
+    
+    private static final Logger log = LoggerFactory.getLogger(AgreementDocumentCreationWorkflow.class);
 
-    public void createAgreementDocument() {
-        System.out.println("Creating Agreement Document");
+    public enum AgreementDocumentCreationStep implements WorkflowStep {
+        REQUEST_TO_GENERATE_DOCUMENT,
+        HANDLE_CALLBACK,
+        HANDLE_CREATED_DOCUMENT,
+        CREATE_INCIDENT,
+        HANDLE_INCIDENT
+    }
 
-        // variables
-        boolean documentCreationRequested = false;
-        var documentCreationResponse = new Object();
-        boolean documentCreationFailureIncidentCreated = false;
-
-        if (!documentCreationRequested) {
-            requestToGenerateDocument();
-            return;
+    public void createAgreementDocument(WorkflowInstance task) {
+        final var step = (AgreementDocumentCreationStep) task.getStepId();
+        switch (step) {
+            case REQUEST_TO_GENERATE_DOCUMENT -> {
+                requestToGenerateDocument();
+                task.setWaitingForCallback(true);
+                task.setStepId(AgreementDocumentCreationStep.HANDLE_CALLBACK);
+            }
+            case HANDLE_CALLBACK -> {
+                handleCallback(task);
+            }
+            case HANDLE_CREATED_DOCUMENT -> {
+                handleCreatedDocument();
+                task.setStepId(null);
+            }
+            case CREATE_INCIDENT -> {
+                createIncident();
+                task.setStepId(AgreementDocumentCreationStep.HANDLE_INCIDENT);
+                task.setHasIncident(true);
+            }
+            case HANDLE_INCIDENT -> {
+                resetTaskToRequestToGenerateDocument();
+                task.setStepId(AgreementDocumentCreationStep.REQUEST_TO_GENERATE_DOCUMENT);
+            }
         }
-
-        boolean documentCreated = documentCreationResponse != null; // from response
-        if (documentCreated) {
-            handleCreatedDocument();
-            return;
-        }
-
-        System.out.println("document must have failed to be created");
-        if (!documentCreationFailureIncidentCreated) {
-            createIncident();
-            return;
-        }
-
-        System.out.println("must be restarting document creation");
-        resetTaskToRequestToGenerateDocument();
     }
 
     private static void resetTaskToRequestToGenerateDocument() {
-        System.out.println("reset variables to try creating document again from beginning");
+        log.info("reset variables to try creating document again from beginning");
     }
 
     private static void createIncident() {
-        System.out.println("Document creation failed, creating incident");
+        log.info("Document creation failed, creating incident");
     }
 
     private static void handleCreatedDocument() {
-        System.out.println("Document created");
+        log.info("Document created");
     }
 
     private static void requestToGenerateDocument() {
-        System.out.println("Requesting to generate agreement document, will wait for callback");
+        log.info("Requesting to generate agreement document, will wait for callback");
+    }
+
+    private void handleCallback(WorkflowInstance task) {
+        log.info("Handling callback");
+        if (System.currentTimeMillis() % 2 == 0) {
+            log.info("looks good, carry on");
+            task.setStepId(AgreementDocumentCreationStep.HANDLE_CREATED_DOCUMENT);
+        } else {
+            log.info("looks bad, create incident please");
+            task.setStepId(AgreementDocumentCreationStep.CREATE_INCIDENT);
+        }
     }
 
     @Override
     public void handle(WorkflowInstance task) {
-        createAgreementDocument();
+        createAgreementDocument(task);
     }
 }
