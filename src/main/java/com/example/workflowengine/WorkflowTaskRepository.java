@@ -21,7 +21,7 @@ public class WorkflowTaskRepository {
         String salesCaseId = String.valueOf(nextId++);
         workflowInstance.setSalesCaseId(salesCaseId);
         workflowTasks.put(salesCaseId, workflowInstance);
-        return String.valueOf(nextId);
+        return salesCaseId;
     }
 
     public Optional<WorkflowInstance> findValidForHandling() {

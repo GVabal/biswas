@@ -8,6 +8,8 @@ import jakarta.inject.Singleton;
 @Singleton
 public class CustomerInfoWorkflow implements WorkflowDefinition {
 
+    private static Boolean customerExists = null;
+
     public enum CustomerInfoStep implements WorkflowStep {
         GET_CUSTOMER_INFO,
         REQUEST_TO_CREATE_CUSTOMER,
@@ -40,7 +42,9 @@ public class CustomerInfoWorkflow implements WorkflowDefinition {
             if (timesLooped > 10) {
                 task.setStepId(CustomerInfoStep.CREATE_CUSTOMER_CREATION_INCIDENT);
             }
+            return;
         }
+        task.setStepId(CustomerInfoStep.GET_CUSTOMER_INFO);
     }
 
     private static void handleRequestToCreateCustomerStep(WorkflowInstance task) {
@@ -71,12 +75,15 @@ public class CustomerInfoWorkflow implements WorkflowDefinition {
 
     private Object getCustomerInfo() {
         System.out.println("Calling customer recognition client to get customer info");
-        boolean willFindCustomer = System.currentTimeMillis() % 2 == 0;
-        if (willFindCustomer) {
+        if (customerExists == null) {
+            customerExists = System.currentTimeMillis() % 2 == 0;
+        }
+        if (customerExists) {
             System.out.println("customer exists");
             return new Object();
         }
         System.out.println("customer does not exist");
+        customerExists = null;
         return null;
     }
 

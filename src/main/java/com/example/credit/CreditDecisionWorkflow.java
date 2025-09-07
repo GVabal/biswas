@@ -27,6 +27,7 @@ public class CreditDecisionWorkflow implements WorkflowDefinition {
             }
             case MAKE_CREDIT_DECISION -> {
                 handleHumanTaskResult(task.getVariables().get("task-MAKE_CREDIT_DECISION"));
+                task.setStepId(null);
             }
         }
     }

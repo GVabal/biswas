@@ -1,5 +1,6 @@
 package com.example.workflowengine;
 
+import com.example.credit.CreditDecisionWorkflow;
 import com.example.customer.CustomerInfoWorkflow;
 import io.micronaut.scheduling.annotation.Scheduled;
 import jakarta.inject.Singleton;
@@ -36,7 +37,7 @@ public class WorkflowTaskScheduler {
                             task.setStepId(workflowSetup.getFirstStepForStage(nextStageId));
                         } else {
                             System.out.println("Instance %s has finished it's journey lol".formatted(task.getSalesCaseId()));
-                            // deal with finished process
+                            System.out.println("TODO deal with finished process instance");
                         }
                     }
                 });
@@ -45,5 +46,11 @@ public class WorkflowTaskScheduler {
         // for example could first lock task with zone identity, then lookup in db again to see if it still belongs to him
 
         // TODO handle technical errors here - retries, technical incidents
+    }
+
+    private void submitCreditDecisionHumanTask() {
+         workflowTaskRepository.findById("1000000").get().addVariable("task-MAKE_CREDIT_DECISION", new Object());
+         workflowTaskRepository.findById("1000000").get().setWaitingForHumanTaskToBeCompleted(false);
+         workflowTaskRepository.findById("1000000").get().setStepId(CreditDecisionWorkflow.CreditDecisionStep.MAKE_CREDIT_DECISION);
     }
 }
